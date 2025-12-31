@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>لحظة خاصة</title>
+<style>
+body {
+  margin:0;
+  font-family: 'Arial', sans-serif;
+  background: black;
+  color: white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  overflow:hidden;
+  text-align:center;
+}
+#countdown {
+  font-size: 3em;
+}
+.hidden { display:none; }
+
+.glitch {
+  animation: glitch 0.2s infinite;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px,2px); }
+  40% { transform: translate(2px,-2px); }
+  60% { transform: translate(-2px,-2px); }
+  80% { transform: translate(2px,2px); }
+}
+
+.message {
+  font-size:2em;
+  opacity:0;
+  animation: fadeIn 2s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity:1; }
+}
+
+canvas {
+  position:fixed;
+  top:0;
+  left:0;
+  pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<div id="countdown"></div>
+
+<div id="final" class="hidden">
+  <div id="msg" class="message"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+// ⏰ عدل التاريخ هنا
+const targetDate = new Date("2025-01-01T00:00:00").getTime();
+const countdown = document.getElementById("countdown");
+const final = document.getElementById("final");
+const msg = document.getElementById("msg");
+
+const texts = [
+  "توقفي لحظة…",
+  "هذا ليس موقعًا عاديًا",
+  "ولا رسالة عابرة",
+  "أردت أن أصنع لك لحظة",
+  "لأنك لستِ عادية ❤️",
+  "كل عام وأنتِ أقرب لقلبي"
+];
+
+let i = 0;
+
+const timer = setInterval(() => {
+  const now = new Date().getTime();
+  const diff = targetDate - now;
+
+  if (diff <= 0) {
+    clearInterval(timer);
+    countdown.classList.add("glitch");
+    setTimeout(showFinal, 1000);
+    return;
+  }
+
+  const h = Math.floor(diff / (1000 * 60 * 60));
+  const m = Math.floor((diff / (1000 * 60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+  countdown.innerHTML = `${h} : ${m} : ${s}`;
+}, 1000);
+
+function showFinal(){
+  countdown.style.display="none";
+  final.classList.remove("hidden");
+  nextText();
+  startConfetti();
+}
+
+function nextText(){
+  if(i < texts.length){
+    msg.innerHTML = texts[i];
+    msg.style.opacity = 0;
+    msg.style.animation = "fadeIn 2s forwards";
+    i++;
+    setTimeout(nextText, 2500);
+  }
+}
+
+// 🎆 Confetti
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+for(let i=0;i<150;i++){
+  particles.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*4+1,
+    d: Math.random()*canvas.height
+  });
+}
+
+function startConfetti(){
+  setInterval(draw, 20);
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="pink";
+  particles.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+    p.y += Math.random()*3;
+    if(p.y > canvas.height) p.y = 0;
+  });
+}
+</script>
+</body>
+</html>
